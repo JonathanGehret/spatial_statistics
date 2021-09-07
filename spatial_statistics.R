@@ -43,3 +43,44 @@ simulation_envelope_39 = envelope(Y = alive, fun = estimate_o_ring, r = seq(from
 plot(simulation_envelope_39)
 #quantum colors show if its outside theenevelope (yellow), above (purple), inside (green)
 plot_quantums(simulation_envelope_39,quantum_size = 0.001)
+
+# univariate: trees stay in position
+# bivariate: poisitoin is changed of something,  one of the characteristics
+
+random_labeling = envelope(douglas_fir_ppp, fun = pcfcross, i = "alive", j ="dead",
+                           r=seq(from = 0, to=45,by = 0.5), nsim = 39, nrank = 1,
+                           simulate = expression(rlabel(douglas_fir_ppp)))
+plot(random_labeling)
+# envelope looks different than the other function: independt, almost the same shape as  the o-ring-statistic
+
+nsim = c(39,79)
+nrank = c(1,2)
+
+param_envelop = expand.grid(nsim = nsim, nrank = nrank)
+param_envelop = arrange(param_envelop, nsim, nrank)
+
+# load library for using map function
+library(purrr)
+
+random_labeling_mult = purrr::map(1:nrow(param_envelop),function(i) {
+  as_tibble(envelope(douglas_fir_ppp, fun = pcfcross, i = "alive", j ="dead",
+                     r=seq(from = 0, to=45,by = 0.5), nsim = param_envelop[i,1], nrank = param_envelop[i,2],
+                     simulate = expression(rlabel(douglas_fir_ppp))))
+})
+
+names(random_labeling_mult) = paste0("n_sim",param_envelop$nsim,"_nrank_",param_envelop$nrank)
+
+# turnign to dataframe!
+random_labeling_mult = bind_rows(random_labeling_mult, .id = "id")
+
+library(ggplot2)
+library(reshape2)
+
+ggplot(data = random_labeling_mult) +
+  geom_ribbon(aes(x = r, ymin = lo, ymax = hi, fill = "Simulation envelope"), alpha = 0.75) +
+  geom_line(aes(x = r, y = obs, col = "Observed value")) +
+  scale_fill_manual(name = "", values = c("Simulation envelope" = "grey")) +
+  scale_color_manual(name = "", values = c("Observed value" = "black"))+
+  facet_wrap(~id)+
+  theme_classic()
+  
