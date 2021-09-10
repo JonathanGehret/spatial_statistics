@@ -39,7 +39,8 @@ plot(oring_statistic$r, oring_statistic$iso, type = "l")
 lines(oring_statistic$r, oring_statistic$the,col="red")
 
 # envelope!
-simulation_envelope_39 = envelope(Y = alive, fun = estimate_o_ring, r = seq(from = 0, to = 45, by = 0.5), nsim = 39, nrank = 1)
+simulation_envelope_39 = envelope(Y = alive, fun = estimate_o_ring, r = seq(from = 0, to = 45, by = 0.5), 
+                                  nsim = 39, nrank = 1)
 plot(simulation_envelope_39)
 #quantum colors show if its outside theenevelope (yellow), above (purple), inside (green)
 plot_quantums(simulation_envelope_39,quantum_size = 0.001)

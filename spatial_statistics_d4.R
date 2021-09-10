@@ -28,7 +28,7 @@ envelopes_adults = envelope(hemlock_ppp, fun = estimate_o_ring,
 plot(envelopes_adults)
 
 # graph for the area of the intensity of the heterogeneity (like in programita)
-lambda_xy = density(x = adults)
+lambda_xy = density(x = adults, 15) # the number is radius!
 
 plot(lambda_xy)
 
@@ -36,8 +36,10 @@ simulated_heterogenous_pattern = rpoispp(lambda = lambda_xy, nsim = 39)
 
 plot(simulated_heterogenous_pattern)
 
-enevelop
 
+
+
+#below: old code!
 
 #o-ring-statistic function
 oest_cross = function(input,i,j,r = NULL,correction ="Ripley",divisor ="d",...) {
