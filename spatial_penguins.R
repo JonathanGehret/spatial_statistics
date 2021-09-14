@@ -12,7 +12,7 @@ plot_area = ripras(x = penguins$Easting..m., y = penguins$Northing..m., shape = 
 #combining both into one!
 penguins_ppp = as.ppp(X = penguins, W = plot_area)
 summary(penguins_ppp)
-plot(penguins_ppp)
+plot(penguins_ppp, add = T)
 
 # o-ring statistic
 oring_statistic = estimate_o_ring(x = penguins_ppp, r = seq(from = 0, to=45,by = 0.5))
@@ -29,17 +29,37 @@ plot_quantums(simulation_envelope_39,quantum_size = 0.001)
 
 #random labeling to see differences in qualitites!
 #...
+#  EPSG:3031 (Antarctic Stereographic).
 
 # to-do: add coordinate system: EPSG:3031 (Antarctic Stereographic)
 
 # load elevation
 elevation = raster(x = "data/penguins/elevation/elevation.tif")
-plot(elevation)
+crs(elevation) = CRS('+init=EPSG:3031')
+#plot(elevation)
 
 # load cost distance raster
 cdr = raster(x = "data/penguins/cost_distance/cost_distance.tif")
-plot(cdr)
+crs(cdr) = CRS('+init=EPSG:3031')
+#plot(cdr)
 
 # load flow accumulation (original scale)
 flacc = raster(x = "data/penguins/flow_acc_01/flow_acc_01.tif")
-plot(flacc)
+crs(flacc) = CRS('+init=EPSG:3031')
+#plot(flacc, add = T)
+
+# plotting in one place
+par(mfrow=c(1,3))
+plot(elevation, main = "Elevation")
+plot(penguins_ppp, add = T)
+plot(cdr, main = "Cost distance")
+plot(penguins_ppp, add = T)
+plot(flacc, main = "Flow accumulation")
+plot(penguins_ppp, add = T)
+
+
+?spatstat
+?berman.test()
+
+# are the points signifcantly correlated with an abiotic covariate
+# later in programita: cut the studdy area? but isn't it already onyl using the  study area!

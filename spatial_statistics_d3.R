@@ -68,3 +68,6 @@ ggplot(data = comp) +
   scale_color_manual(name = "", values = c("Observed value" = "black"))+
   facet_wrap(~id)+
   theme_classic()
+
+
+
