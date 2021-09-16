@@ -35,19 +35,24 @@ plot_quantums(simulation_envelope_39,quantum_size = 0.001)
 # to-do: add coordinate system: EPSG:3031 (Antarctic Stereographic)
 
 # load elevation
-elevation = raster(x = "data/penguins/elevation/elevation.tif")
+elevation = raster(x = "data/penguins/elevation/elevation_smallest.tif") 
 crs(elevation) = CRS('+init=EPSG:3031')
-#plot(elevation)
+plot(elevation)
+
+library('jpeg')
+# load elevation jpeg
+elevation = readJPEG(source = "data/penguins/elevation/elevation_test_03.jpeg")
+plot(elevation)
 
 # load cost distance raster
 cdr = raster(x = "data/penguins/cost_distance/cost_distance.tif")
 crs(cdr) = CRS('+init=EPSG:3031')
-#plot(cdr)
+plot(cdr)
 
 # load flow accumulation (original scale)
 flacc = raster(x = "data/penguins/flow_acc_01/flow_acc_01.tif")
 crs(flacc) = CRS('+init=EPSG:3031')
-#plot(flacc, add = T)
+plot(flacc)
 
 flacc_16 = raster(x = "data/penguins/flow_acc_16/flow_acc_16.tif")
 plot(flacc_16)
@@ -75,6 +80,8 @@ plot(delev)
 # raster to im for use with berman.test (spatstat)
 flim = as.im.RasterLayer(flacc_16)
 cdrim = as.im.RasterLayer(cdr)
+elim = as.im.RasterLayer(elevation)
+
 
 # berman.test for interactions 
 #Tests the goodness-of-fit of a Poisson point process model using methods of Berman (1986).
@@ -93,3 +100,54 @@ plot(bt_cdr_z1, xlab = "Cost Distance")
 plot(bt_fl_z1, xlab = "Flow Accumulation")
 plot(bt_cdr_z2, xlab = "Cost Distance")
 plot(bt_fl_z2, xlab = "Flow Accumulation")
+
+ # shows high correlation with higher cost and lower flow accumulation
+
+
+# get boundary polygon with around cells that are not na
+
+equalled = cdr > -Inf
+plot(equalled)
+
+library(rgeos)
+
+flacc_bound = rasterToPolygons(flacc_16, dissolve = TRUE)
+plot(flacc_bound)
+
+boundary = rasterToPolygons(equalled, dissolve = TRUE)
+plot(boundary)
+library(sf)
+
+
+?unionSpatialPolygons
+#library(rgdal)
+#library(gridExtra)
+library(maptools)
+unioned = unionSpatialPolygons(boundary, IDs = boundary@polygons)
+plot(unioned)
+boundary@polygons[[1]]@Polygons[[1]]
+
+r_bound = rbind(boundary@polygons[[1]]@Polygons)
+plot(r_bound)
+as.SpatialPolygons.PolygonsList(r_bound)
+
+# supposedly merging all polgyons intoo one
+bound_agg = aggregate(boundary, dissolve = T)
+plot(bound_agg)
+
+plot(boundary@polygons[[1]]@Polygons[[1]])
+
+#testing = boundaries(equalled)
+#plot(testing)
+
+testint = st_as_sf(boundary)
+plot(testint)
+library(dplyr)
+
+testor = st_cast(testint, "MULTIPOINT")
+plot(testor)
+
+peng_points = testor %>% st_cast("POINT")
+plot(peng_points)
+
+write.csv(testor, file = "penguin_boundary.csv", row.names = F)
